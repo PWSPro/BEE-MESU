@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0d0a14">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>BEE & Mesu — Ultimate Private Space</title>
+    <script>
+        // Dynamic PWA Manifest for Full-Screen Standalone Installation
+        (function() {
+            const heartSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <defs>
+                    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#ff4d8d"/>
+                        <stop offset="100%" stop-color="#a855f7"/>
+                    </linearGradient>
+                </defs>
+                <rect width="512" height="512" rx="120" fill="#0d0a14"/>
+                <rect x="20" y="20" width="472" height="472" rx="102" fill="none" stroke="url(#g)" stroke-width="10" stroke-opacity="0.55"/>
+                <path d="M256 392 C256 392 112 298 112 196 C112 146 150 112 196 112 C226 112 246 128 256 148 C266 128 286 112 316 112 C362 112 400 146 400 196 C400 298 256 392 256 392 Z" fill="url(#g)"/>
+                <circle cx="342" cy="172" r="14" fill="#fff" fill-opacity="0.75"/>
+            </svg>`;
+            const manifest = {
+                name: "BEE & Mesu — Our Private Space",
+                short_name: "BEE & Mesu",
+                start_url: "./",
+                display: "standalone",
+                orientation: "portrait",
+                background_color: "#0d0a14",
+                theme_color: "#0d0a14",
+                icons: [{
+                    src: "data:image/svg+xml;utf8," + encodeURIComponent(heartSvg),
+                    sizes: "512x512",
+                    type: "image/svg+xml"
+                }]
+            };
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+            document.head.appendChild(link);
+        })();
+    </script>
+    <style>
+        :root {
+            --bg-main: #0d0a14;
+            --bg-grad: #1f1333;
+            --bg-card: #161122;
+            --bg-elevated: #211933;
+            --text-main: #fdf4ff;
+            --text-muted: #a799b7;
+            --accent: #ff4d8d;
+            --accent-light: #ff85b3;
+            --accent-sec: #a855f7;
+            --gold: #fbbf24;
+            --border: #2e2347;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body.theme-gold {
+            --bg-main: #0b0d12;
+            --bg-grad: #1e1b14;
+            --bg-card: #141822;
+            --bg-elevated: #1d2332;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #d4af37;
+            --accent-light: #f3d266;
+            --accent-sec: #f59e0b;
+            --border: #2c3446;
+        }
+
+        body.theme-ocean {
+            --bg-main: #070f1a;
+            --bg-grad: #0f2542;
+            --bg-card: #0e192b;
+            --bg-elevated: #162640;
+            --text-main: #f0f9ff;
+            --text-muted: #93c5fd;
+            --accent: #38bdf8;
+            --accent-light: #7dd3fc;
+            --accent-sec: #818cf8;
+            --border: #1e3a5f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, var(--bg-grad) 0%, var(--bg-main) 58%);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: calc(86px + env(safe-area-inset-bottom));
+            overflow-x: hidden;
+            transition: background 0.3s ease;
+        }
+
+        /* Floating Heart Particles */
+        .float-heart {
+            position: fixed;
+            pointer-events: none;
+            font-size: 22px;
+            z-index: 9999;
+            animation: floatUp 1.4s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.75); }
+            100% { opacity: 0; transform: translateY(-150px) scale(1.4); }
+        }
+
+        /* ==================== SPLASH SCREEN ==================== */
+        #splashScreen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--bg-grad) 0%, #07050c 80%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+
+        #splashScreen.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-emblem {
+            width: 104px;
+            height: 104px;
+            border-radius: 30px;
+            background: linear-gradient(145deg, rgba(255, 77, 141, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1.5px solid var(--accent);
+            box-shadow: 0 12px 40px rgba(255, 77, 141, 0.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 46px;
+            margin-bottom: 16px;
+            animation: beat 1.6s infinite ease-in-out;
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        .splash-bar-wrap {
+            width: 200px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 18px;
+        }
+
+        .splash-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-sec));
+            transition: width 0.25s ease;
+        }
+
+        /* ==================== PIN LOCK SCREEN ==================== */
+        #pinScreen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--bg-grad) 0%, var(--bg-main) 80%);
+            z-index: 9000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #pinScreen.show { display: flex; }
+
+        .pin-dots {
+            display: flex;
+            gap: 14px;
+            margin: 18px 0 24px;
+        }
+
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            transition: 0.15s;
+        }
+
+        .pin-dot.filled {
+            background: var(--accent);
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        .pin-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 72px);
+            gap: 12px;
+        }
+
+        .pin-key {
+            height: 58px;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .pin-key:active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* ==================== HEADER ==================== */
+        header {
+            background: rgba(16, 12, 26, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-inner {
+            max-width: 540px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .love-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: var(--accent-light);
+        }
+
+        .brand-sub {
+            font-size: 9.5px;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+        }
+
+        .hdr-tools {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .role-pill {
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--accent);
+            color: var(--accent-light);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .icon-btn {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            height: 31px;
+            min-width: 31px;
+            padding: 0 7px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==================== LAYOUT & CARDS ==================== */
+        .container {
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 12px;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.22s ease;
+        }
+
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 11px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            gap: 8px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--accent-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+
+        /* Love Counter Hero */
+        .hero-love {
+            background: linear-gradient(145deg, rgba(255, 77, 141, 0.16), rgba(168, 85, 247, 0.12), var(--bg-card));
+            border: 1px solid var(--accent);
+            text-align: center;
+        }
+
+        .days-big {
+            font-size: 38px;
+            font-weight: 900;
+            color: var(--accent-light);
+            line-height: 1.1;
+            margin: 6px 0;
+        }
+
+        .live-clock-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .time-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px 10px;
+            min-width: 58px;
+        }
+
+        .time-val {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--accent-light);
+        }
+
+        .time-lbl {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Dual Mood Cards */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+
+        .mood-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .mood-card.me-highlight {
+            border-color: var(--accent);
+            box-shadow: 0 0 14px rgba(255, 77, 141, 0.12);
+        }
+
+        .mood-emoji {
+            font-size: 30px;
+            margin: 4px 0;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .mood-opt {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 8px 4px;
+            color: var(--text-main);
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .mood-opt:active {
+            transform: scale(0.94);
+            border-color: var(--accent);
+        }
+
+        /* Inputs & Buttons */
+        input, textarea, select {
+            width: 100%;
+            padding: 11px 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            color: var(--text-main);
+            font-size: 13px;
+            margin-bottom: 9px;
+            outline: none;
+        }
+
+        input:focus, textarea:focus { border-color: var(--accent); }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-sec));
+            color: #fff;
+            border: none;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent-light);
+        }
+
+        .pill-btn {
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 8px;
+            border: 1px solid var(--accent);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--accent-light);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Love Notes */
+        .note-item {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 12px;
+            padding: 11px 12px;
+            margin-bottom: 9px;
+        }
+
+        .note-item.her-note { border-left-color: var(--accent-sec); }
+
+        /* Bucket List & Savings */
+        .bucket-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 11px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            margin-bottom: 7px;
+            gap: 8px;
+        }
+
+        .bucket-row.done span {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .prog-track {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 99px;
+            overflow: hidden;
+            margin: 8px 0;
+            border: 1px solid var(--border);
+        }
+
+        .prog-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 99px;
+            transition: width 0.35s ease;
+        }
+
+        /* Spin Wheel & Question Deck */
+        .wheel-wrap {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 8px auto 14px;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 22px solid var(--gold);
+            z-index: 10;
+        }
+
+        .deck-card {
+            background: linear-gradient(145deg, var(--bg-elevated), var(--bg-main));
+            border: 1.5px solid var(--accent);
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        /* Bottom Navigation (5 Tabs) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(16, 12, 26, 0.96);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .nav-btn.active { color: var(--accent-light); }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== LUXURY SPLASH SCREEN ==================== -->
+    <div id="splashScreen">
+        <div class="splash-emblem">💖</div>
+        <div style="font-size: 20px; font-weight: 900; letter-spacing: 1.5px; color: var(--accent-light);" id="splashTitle">BEE & MESU</div>
+        <div style="font-size: 11px; letter-spacing: 2.5px; color: var(--text-muted); margin-top: 4px;">OUR PRIVATE UNIVERSE</div>
+        <div class="splash-bar-wrap">
+            <div class="splash-bar-fill" id="splashBar"></div>
+        </div>
+    </div>
+
+    <!-- ==================== PIN LOCK SCREEN ==================== -->
+    <div id="pinScreen">
+        <div class="love-avatar" style="width: 68px; height: 68px; font-size: 32px; border-radius: 22px; margin-bottom: 12px;">💖</div>
+        <div style="font-size: 17px; font-weight: 900; color: var(--accent-light);" id="pinNamesTitle">BEE & Mesu</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="pinHint">Enter Our 4-Digit Secret PIN</div>
+
+        <div class="pin-dots">
+            <div class="pin-dot" id="pdot0"></div>
+            <div class="pin-dot" id="pdot1"></div>
+            <div class="pin-dot" id="pdot2"></div>
+            <div class="pin-dot" id="pdot3"></div>
+        </div>
+
+        <div class="pin-pad">
+            <button class="pin-key" onclick="pressPin('1')">1</button>
+            <button class="pin-key" onclick="pressPin('2')">2</button>
+            <button class="pin-key" onclick="pressPin('3')">3</button>
+            <button class="pin-key" onclick="pressPin('4')">4</button>
+            <button class="pin-key" onclick="pressPin('5')">5</button>
+            <button class="pin-key" onclick="pressPin('6')">6</button>
+            <button class="pin-key" onclick="pressPin('7')">7</button>
+            <button class="pin-key" onclick="pressPin('8')">8</button>
+            <button class="pin-key" onclick="pressPin('9')">9</button>
+            <button class="pin-key" style="font-size: 13px; color: var(--danger);" onclick="pressPin('C')">CLR</button>
+            <button class="pin-key" onclick="pressPin('0')">0</button>
+            <button class="pin-key" style="font-size: 16px;" onclick="pressPin('DEL')">⌫</button>
+        </div>
+    </div>
+
+    <!-- ==================== HEADER ==================== -->
+    <header>
+        <div class="header-inner">
+            <div class="brand-wrap">
+                <div class="love-avatar">💞</div>
+                <div>
+                    <div class="brand-title" id="headerNames">BEE & Mesu</div>
+                    <div class="brand-sub" data-i18n="headerSub">PRIVATE SPACE</div>
+                </div>
+            </div>
+
+            <div class="hdr-tools">
+                <button class="role-pill" onclick="switchRole()" id="roleToggleBtn">👦 BEE</button>
+                <button class="icon-btn" onclick="cycleTheme()" title="Theme">🎨</button>
+                <button class="icon-btn" onclick="toggleLang()" id="langBtn">EN</button>
+                <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
+                <button class="icon-btn" onclick="lockAppNow()" title="Lock">🔒</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Live Cloud Status Bar -->
+        <div class="sync-banner">
+            <span id="syncStatusLabel" style="color: var(--accent-light); font-weight: 700;">☁️ Local Mode</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="font-size: 11px; color: var(--gold); font-weight: 800;" id="heartCounterBadge">❤️ 0</span>
+                <button class="pill-btn" onclick="syncFromCloud(false)">🔄 Sync</button>
+            </div>
+        </div>
+
+        <!-- ==================== PAGE 1: HOME (LOVE COUNTER & LIVE MOOD) ==================== -->
+        <section id="page-home" class="page active">
+            <!-- Hero Love Counter -->
+            <div class="card hero-love">
+                <div style="font-size: 11px; letter-spacing: 1.5px; color: var(--accent-light); font-weight: 800; text-transform: uppercase;" data-i18n="togetherFor">အတူရှိလာခဲ့တဲ့ အချိန်များ</div>
+                <div class="days-big" id="loveDaysText">0 Days</div>
+                <div style="font-size: 11px; color: var(--text-muted);" id="annivDateBadge">Since 2025-01-01</div>
+
+                <div class="live-clock-row">
+                    <div class="time-box">
+                        <div class="time-val" id="cntHours">00</div>
+                        <div class="time-lbl" data-i18n="hrsLbl">Hours</div>
+                    </div>
+                    <div class="time-box">
+                        <div class="time-val" id="cntMins">00</div>
+                        <div class="time-lbl" data-i18n="minsLbl">Mins</div>
+                    </div>
+                    <div class="time-box">
+                        <div class="time-val" id="cntSecs">00</div>
+                        <div class="time-lbl" data-i18n="secsLbl">Secs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Countdowns Row -->
+            <div class="grid-2" style="margin-bottom: 12px;">
+                <div class="card" style="margin-bottom: 0; padding: 11px; text-align: center;">
+                    <div style="font-size: 10px; color: var(--text-muted);" id="herBdayLabel">🎂 Mesu's Birthday</div>
+                    <div style="font-size: 16px; font-weight: 900; color: var(--accent-light); margin-top: 3px;" id="herBdayCountdown">-- days</div>
+                </div>
+                <div class="card" style="margin-bottom: 0; padding: 11px; text-align: center;">
+                    <div style="font-size: 10px; color: var(--text-muted);" id="hisBdayLabel">🎂 BEE's Birthday</div>
+                    <div style="font-size: 16px; font-weight: 900; color: var(--gold); margin-top: 3px;" id="hisBdayCountdown">-- days</div>
+                </div>
+            </div>
+
+            <!-- Live Dual Mood Status -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">💓 <span data-i18n="liveMoodTitle">လက်ရှိ Mood အခြေအနေ (Live)</span></span>
+                    <button class="pill-btn" onclick="sendHeartPing(event)">❤️ Send Heart</button>
+                </div>
+
+                <div id="heartPingBanner" style="display: none; text-align: center; font-size: 11px; color: var(--gold); background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 9px; padding: 6px; margin-bottom: 10px;"></div>
+
+                <div class="grid-2">
+                    <div class="mood-card" id="hisMoodCard">
+                        <div style="font-size: 11px; font-weight: 800; color: var(--accent-light);" id="hisMoodName">👦 BEE</div>
+                        <div class="mood-emoji" id="hisMoodEmoji">😍</div>
+                        <div style="font-size: 12px; font-weight: 700;" id="hisMoodText">လွမ်းနေတယ်</div>
+                        <div style="font-size: 9px; color: var(--text-muted); margin-top: 4px;" id="hisMoodTime">Just now</div>
+                    </div>
+
+                    <div class="mood-card" id="herMoodCard">
+                        <div style="font-size: 11px; font-weight: 800; color: #d8b4fe;" id="herMoodName">👧 Mesu</div>
+                        <div class="mood-emoji" id="herMoodEmoji">🥰</div>
+                        <div style="font-size: 12px; font-weight: 700;" id="herMoodText">ပျော်နေတယ်</div>
+                        <div style="font-size: 9px; color: var(--text-muted); margin-top: 4px;" id="herMoodTime">Just now</div>
+                    </div>
+                </div>
+
+                <!-- Quick Mood Selector -->
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 12px;" id="updateMoodPrompt">
+                    ကိုယ့်ရဲ့ Mood ပြောင်းရန် နှိပ်ပါ:
+                </div>
+                <div class="mood-grid">
+                    <button class="mood-opt" onclick="setMyMood('😍', 'လွမ်းနေတယ်', event)"><span>😍</span><span>လွမ်းနေတယ်</span></button>
+                    <button class="mood-opt" onclick="setMyMood('🥰', 'ပျော်နေတယ်', event)"><span>🥰</span><span>ပျော်နေတယ်</span></button>
+                    <button class="mood-opt" onclick="setMyMood('🎮', 'ဂိမ်းဆော့မယ်', event)"><span>🎮</span><span>ဂိမ်းဆော့မယ်</span></button>
+                    <button class="mood-opt" onclick="setMyMood('😴', 'အိပ်ချင်နေပြီ', event)"><span>😴</span><span>အိပ်ချင်ပြီ</span></button>
+                    <button class="mood-opt" onclick="setMyMood('🥺', 'စိတ်ကောက်နေတယ်', event)"><span>🥺</span><span>စိတ်ကောက်</span></button>
+                    <button class="mood-opt" onclick="setMyMood('🎧', 'သီချင်းနားထောင်နေ', event)"><span>🎧</span><span>သီချင်းနားထောင်</span></button>
+                    <button class="mood-opt" onclick="setMyMood('🍔', 'ဗိုက်ဆာနေတယ်', event)"><span>🍔</span><span>ဗိုက်ဆာနေ</span></button>
+                    <button class="mood-opt" onclick="setMyMood('📚', 'စာလုပ်နေတယ်', event)"><span>📚</span><span>စာလုပ်နေ</span></button>
+                </div>
+
+                <div style="display: flex; gap: 6px; margin-top: 9px;">
+                    <input type="text" id="customMoodInput" style="margin-bottom: 0;" data-i18n-ph="customMoodPh" placeholder="ကိုယ်ပိုင် Status စာသား ရေးရန်...">
+                    <button class="btn" style="width: auto; padding: 0 14px;" onclick="setCustomMood(event)">OK</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 2: SECRET LOVE NOTES ==================== -->
+        <section id="page-notes" class="page">
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">💌 <span data-i18n="leaveNoteTitle">အမှတ်တရ စာတိုလေး ထားခဲ့မယ်</span></span>
+                </div>
+                <textarea id="noteInput" rows="3" data-i18n-ph="notePh" placeholder="သူဖတ်ဖို့ ချစ်စရာစာတိုလေး တစ်ကြောင်းလောက် ရေးထားခဲ့ပါ..."></textarea>
+                <button class="btn" onclick="addLoveNote(event)">💖 <span data-i18n="postNoteBtn">စာတို ပို့မည်</span></button>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">📜 <span data-i18n="notesWallTitle">နှစ်ယောက်သား စာတိုဘုတ်</span> (<span id="notesCount">0</span>)</span>
+                </div>
+                <div id="notesList"></div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 3: PLAY (SPIN WHEEL & COUPLE CARDS) ==================== -->
+        <section id="page-play" class="page">
+            <!-- Spin Wheel -->
+            <div class="card" style="text-align: center;">
+                <div class="card-head">
+                    <span class="card-title">🎡 <span data-i18n="wheelTitle">ဘာလုပ်ကြမလဲ ရွေးစက် (Spin Wheel)</span></span>
+                    <button class="pill-btn" onclick="editWheelItems()">✏️ Edit</button>
+                </div>
+
+                <div class="wheel-wrap">
+                    <div class="wheel-pointer"></div>
+                    <canvas id="wheelCanvas" width="250" height="250"></canvas>
+                </div>
+
+                <div id="wheelResult" style="font-size: 15px; font-weight: 900; color: var(--gold); min-height: 24px; margin-bottom: 10px;"></div>
+                <button class="btn" onclick="spinWheel()">🎯 <span data-i18n="spinBtn">ဘီးလှည့်မယ်!</span></button>
+            </div>
+
+            <!-- Couple Question & Truth/Dare Cards -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🃏 <span data-i18n="cardsTitle">Couple Question & Truth/Dare ကတ်ဂိမ်း</span></span>
+                </div>
+                <div class="deck-card">
+                    <div style="font-size: 10px; color: var(--gold); font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;" id="cardTypeBadge">COUPLE CARD</div>
+                    <div style="font-size: 14px; font-weight: 800; line-height: 1.5;" id="cardQuestionText">
+                        အောက်က ခလုတ်ကို နှိပ်ပြီး မေးခွန်းကတ် ဆွဲပါ 💖
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <button class="btn btn-outline" onclick="drawCoupleCard('love')">💕 Love Question</button>
+                    <button class="btn" onclick="drawCoupleCard('dare')">🎲 Truth or Dare</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 4: GOALS (COUPLE SAVINGS JAR & BUCKET LIST) ==================== -->
+        <section id="page-goals" class="page">
+            <!-- Couple Shared Savings Goal -->
+            <div class="card" style="border-color: rgba(251, 191, 36, 0.5);">
+                <div class="card-head">
+                    <span class="card-title">💰 <span data-i18n="jarTitle">နှစ်ယောက်အတူ စုဘူး (Date Jar)</span></span>
+                    <button class="pill-btn" onclick="editJarGoal()">🎯 Goal</button>
+                </div>
+
+                <div style="font-size: 13px; font-weight: 800;" id="jarGoalName">အပြင်မှာတွေ့ရင် မုန့်အတူစားဖို့ 🍔</div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 6px;">
+                    <span style="color: var(--gold); font-weight: 900;" id="jarSavedText">0 Ks</span>
+                    <span style="color: var(--text-muted);" id="jarTargetText">/ 50,000 Ks</span>
+                </div>
+
+                <div class="prog-track">
+                    <div class="prog-fill" id="jarProgBar"></div>
+                </div>
+
+                <div class="grid-2" style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
+                    <div id="hisJarStat">👦 BEE: 0 Ks</div>
+                    <div style="text-align: right;" id="herJarStat">👧 Mesu: 0 Ks</div>
+                </div>
+
+                <div style="display: flex; gap: 6px;">
+                    <input type="number" id="jarAddInput" style="margin-bottom: 0;" data-i18n-ph="jarAmtPh" placeholder="စုဘူးထဲ ထည့်မည့်ငွေ (Ks)">
+                    <button class="btn" style="width: auto; padding: 0 16px;" onclick="addToCoupleJar(event)">+ Add</button>
+                </div>
+            </div>
+
+            <!-- Couple Bucket List -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">✨ <span data-i18n="bucketTitle">နှစ်ယောက်အတူ လုပ်ချင်တဲ့အရာများ</span></span>
+                </div>
+                <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+                    <input type="text" id="bucketInput" style="margin-bottom: 0;" data-i18n-ph="bucketPh" placeholder="ဥပမာ - အတူတူ ဓာတ်ပုံရိုက်မယ်...">
+                    <button class="btn" style="width: auto; padding: 0 15px;" onclick="addBucketItem()">+</button>
+                </div>
+                <div id="bucketList"></div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 5: SYNC & COUPLE SETTINGS ==================== -->
+        <section id="page-settings" class="page">
+            <!-- Cloud Sync & Magic Invite Link -->
+            <div class="card" style="border-color: var(--accent);">
+                <div class="card-head">
+                    <span class="card-title">☁️ <span data-i18n="syncSetupTitle">ဖုန်း ၂ လုံး တိုက်ရိုက်ချိတ်ဆက်ရန်</span></span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5;" data-i18n="syncSetupDesc">
+                    ဆိုင် POS စာရင်းနဲ့ မရောအောင် JSONBin Master Key လေးထည့်ပြီး "Auto-Create Cloud Room" နှိပ်လိုက်ရုံပါပဲ။ ပြီးရင် "Copy Magic Link for Her" ကိုနှိပ်ပြီး သူ့ဆီ Link ပို့ပေးလိုက်တာနဲ့ နှစ်ယောက်စလုံး တိုက်ရိုက်မြင်ရပါပြီ။
+                </p>
+
+                <label style="font-size: 11px; color: var(--accent-light);">JSONBin API Master Key</label>
+                <input type="password" id="apiKeyInput" placeholder="e.g. $2a$10$...">
+
+                <button class="btn" style="margin-bottom: 9px; background: linear-gradient(135deg, #10b981, #059669);" onclick="autoCreateCoupleBin()">✨ Auto-Create Couple Cloud Room</button>
+
+                <label style="font-size: 11px; color: var(--accent-light);">JSONBin Bin ID (Auto-filled or Manual)</label>
+                <input type="text" id="binIdInput" placeholder="e.g. 6740a1b2...">
+
+                <div class="grid-2" style="margin-bottom: 9px;">
+                    <button class="btn btn-outline" onclick="saveCloudConfig()">💾 Save Keys</button>
+                    <button class="btn" onclick="copyMagicInviteLink()">🔗 Link for Her</button>
+                </div>
+            </div>
+
+            <!-- Couple Profile & Dates -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">💑 <span data-i18n="profileTitle">နှစ်ယောက်သား အချက်အလက်များ</span></span>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-muted);">His Name</label>
+                        <input type="text" id="hisNameInput" value="BEE">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-muted);">Her Name</label>
+                        <input type="text" id="herNameInput" value="Mesu">
+                    </div>
+                </div>
+
+                <label style="font-size: 11px; color: var(--text-muted);" data-i18n="annivLbl">တွဲစမှတ် နေ့စွဲ (Anniversary Date)</label>
+                <input type="date" id="annivInput">
+
+                <div class="grid-2">
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-muted);">His Birthday</label>
+                        <input type="date" id="hisBdayInput">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-muted);">Her Birthday</label>
+                        <input type="date" id="herBdayInput">
+                    </div>
+                </div>
+
+                <button class="btn btn-outline" onclick="saveProfileDates()">✨ <span data-i18n="saveProfileBtn">Save Dates & Names</span></button>
+            </div>
+
+            <!-- Secret PIN Lock -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🔐 <span data-i18n="pinCardTitle">လျှို့ဝှက် PIN Lock</span></span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+                    Current PIN: <strong id="curPinDisplay" style="color: var(--accent-light);">0807</strong>
+                </p>
+                <div class="grid-2">
+                    <button class="btn btn-outline" id="pinStateBtn" onclick="togglePinLock()">PIN Lock: OFF</button>
+                    <button class="btn btn-outline" onclick="changeCouplePin()">✏️ Change PIN</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== BOTTOM NAVIGATION (5 TABS) ==================== -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('home', this)">
+            <span style="font-size: 18px;">💖</span>
+            <span data-i18n="navHome">Home</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('notes', this)">
+            <span style="font-size: 18px;">💌</span>
+            <span data-i18n="navNotes">Notes</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('play', this)">
+            <span style="font-size: 18px;">🎡</span>
+            <span data-i18n="navPlay">Play</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('goals', this)">
+            <span style="font-size: 18px;">💰</span>
+            <span data-i18n="navGoals">Goals</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('settings', this)">
+            <span style="font-size: 18px;">☁️</span>
+            <span data-i18n="navSync">Sync</span>
+        </button>
+    </nav>
+
+    <script>
+        // --- HELPERS ---
+        function getStore(k, def) {
+            try {
+                const v = localStorage.getItem(k);
+                return v ? JSON.parse(v) : def;
+            } catch (e) { return def; }
+        }
+        function setStore(k, v) {
+            try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {}
+        }
+        function esc(s) {
+            return String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        }
+
+        function spawnHearts(e) {
+            const x = e && e.clientX ? e.clientX : window.innerWidth / 2;
+            const y = e && e.clientY ? e.clientY : window.innerHeight / 2;
+            const icons = ['💖', '💕', '💗', '✨', '💓'];
+            for (let i = 0; i < 6; i++) {
+                const el = document.createElement('div');
+                el.className = 'float-heart';
+                el.innerText = icons[i % icons.length];
+                el.style.left = (x + (Math.random() * 90 - 45)) + 'px';
+                el.style.top = (y + (Math.random() * 30 - 15)) + 'px';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 1400);
+            }
+        }
+
+        function playSoftChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08);
+                gain.gain.value = 0.06;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.18);
+            } catch (e) {}
+        }
+
+        // --- STATE ---
+        let activeRole = localStorage.getItem('cpl_role') || 'him';
+        let lang = localStorage.getItem('cpl_lang') || 'mm';
+        let themeIdx = Number(localStorage.getItem('cpl_theme') || 0);
+        let binId = localStorage.getItem('cpl_binId') || '';
+        let apiKey = localStorage.getItem('cpl_apiKey') || '';
+        let lastRemoteStamp = localStorage.getItem('cpl_lastStamp') || '';
+
+        let profile = getStore('cpl_profile', {
+            hisName: 'BEE',
+            herName: 'Mesu',
+            anniv: '2025-01-01',
+            hisBday: '2010-04-08',
+            herBday: '2013-07-09',
+            pin: '0807',
+            pinEnabled: false
+        });
+
+        let coupleData = getStore('cpl_data', {
+            hisMood: { emoji: '😍', text: 'လွမ်းနေတယ်', time: 'Just now' },
+            herMood: { emoji: '🥰', text: 'ပျော်နေတယ်', time: 'Just now' },
+            heartPing: '',
+            heartCount: 1,
+            jar: {
+                goalName: 'အပြင်မှာတွေ့ရင် မုန့်အတူစားဖို့ 🍔',
+                target: 50000,
+                hisSaved: 0,
+                herSaved: 0
+            },
+            notes: [
+                { id: 1, from: 'him', text: 'Welcome to our private space 💖', time: 'Today', liked: true }
+            ],
+            bucket: [
+                { id: 101, text: 'MLBB အတူတူ Rank တက်မယ် 🎮', done: false },
+                { id: 102, text: 'Roblox ထဲ အတူတူ လျှောက်လည်မယ် ✨', done: false },
+                { id: 103, text: 'အပြင်မှာတွေ့ရင် ဓာတ်ပုံအတူရိုက်မယ် 📸', done: false }
+            ],
+            wheelItems: [
+                'MLBB Rank ဆော့မယ်',
+                'Roblox ဝင်လည်မယ်',
+                'သီချင်းအတူနားထောင်မယ်',
+                'Truth or Dare',
+                'ဖုန်းပြောမယ်',
+                'Movie ကြည့်မယ်'
+            ]
+        });
+
+        // --- SPLASH SCREEN ---
+        (function runSplash() {
+            const bar = document.getElementById('splashBar');
+            document.getElementById('splashTitle').innerText = `${profile.hisName.toUpperCase()} & ${profile.herName.toUpperCase()}`;
+            setTimeout(() => { bar.style.width = '50%'; }, 120);
+            setTimeout(() => { bar.style.width = '90%'; }, 450);
+            setTimeout(() => {
+                bar.style.width = '100%';
+                document.getElementById('splashScreen').classList.add('hide');
+                if (profile.pinEnabled) lockAppNow();
+            }, 800);
+        })();
+
+        // --- CHECK MAGIC INVITE LINK ON LOAD ---
+        (function checkInviteHash() {
+            const hash = window.location.hash || '';
+            if (hash.startsWith('#invite=')) {
+                try {
+                    const b64 = hash.slice(8);
+                    const binStr = atob(b64);
+                    const bytes = Uint8Array.from(binStr, c => c.charCodeAt(0));
+                    const jsonStr = new TextDecoder().decode(bytes);
+                    const inv = JSON.parse(jsonStr);
+                    if (inv.binId && inv.apiKey) {
+                        binId = inv.binId;
+                        apiKey = inv.apiKey;
+                        localStorage.setItem('cpl_binId', binId);
+                        localStorage.setItem('cpl_apiKey', apiKey);
+                        if (inv.profile) {
+                            profile = { ...profile, ...inv.profile };
+                            setStore('cpl_profile', profile);
+                        }
+                        activeRole = 'her';
+                        localStorage.setItem('cpl_role', 'her');
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                        setTimeout(() => {
+                            syncFromCloud(true);
+                            alert(`💖 Connected to ${profile.hisName} & ${profile.herName}'s Private Space!`);
+                        }, 900);
+                    }
+                } catch (e) {}
+            }
+        })();
+
+        // --- FULL SCREEN & THEME ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {
+                    alert(lang === 'mm'
+                        ? "Chrome ညာဘက်အပေါ်ထောင့် အစက် ၃ စက် ➔ Add to Home screen နှိပ်ပြီး Home Screen မှာ တင်သုံးရင် Full-Screen App အစစ်အတိုင်း ပွင့်ပါမယ်။"
+                        : "Tap Chrome menu (⋮) ➔ Add to Home screen to open in true full-screen standalone mode.");
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        const themes = ['', 'theme-gold', 'theme-ocean'];
+        function applyTheme() {
+            document.body.classList.remove('theme-gold', 'theme-ocean');
+            if (themes[themeIdx]) document.body.classList.add(themes[themeIdx]);
+        }
+        function cycleTheme() {
+            themeIdx = (themeIdx + 1) % themes.length;
+            localStorage.setItem('cpl_theme', themeIdx);
+            applyTheme();
+        }
+        applyTheme();
+
+        // --- BILINGUAL DICTIONARY ---
+        const dict = {
+            mm: {
+                headerSub: "PRIVATE SPACE",
+                togetherFor: "အတူရှိလာခဲ့တဲ့ အချိန်များ",
+                hrsLbl: "နာရီ",
+                minsLbl: "မိနစ်",
+                secsLbl: "စက္ကန့်",
+                liveMoodTitle: "လက်ရှိ Mood အခြေအနေ (Live)",
+                customMoodPh: "ကိုယ်ပိုင် Status စာသား ရေးရန်...",
+                leaveNoteTitle: "အမှတ်တရ စာတိုလေး ထားခဲ့မယ်",
+                notePh: "သူဖတ်ဖို့ ချစ်စရာစာတိုလေး တစ်ကြောင်းလောက် ရေးထားခဲ့ပါ...",
+                postNoteBtn: "စာတို ပို့မည်",
+                notesWallTitle: "နှစ်ယောက်သား စာတိုဘုတ်",
+                wheelTitle: "ဘာလုပ်ကြမလဲ ရွေးစက် (Spin Wheel)",
+                spinBtn: "ဘီးလှည့်မယ်!",
+                cardsTitle: "Couple Question & Truth/Dare ကတ်ဂိမ်း",
+                jarTitle: "နှစ်ယောက်အတူ စုဘူး (Date Jar)",
+                jarAmtPh: "စုဘူးထဲ ထည့်မည့်ငွေ (Ks)",
+                bucketTitle: "နှစ်ယောက်အတူ လုပ်ချင်တဲ့အရာများ",
+                bucketPh: "ဥပမာ - အတူတူ ဓာတ်ပုံရိုက်မယ်...",
+                syncSetupTitle: "ဖုန်း ၂ လုံး တိုက်ရိုက်ချိတ်ဆက်ရန်",
+                syncSetupDesc: "ဆိုင် POS စာရင်းနဲ့ မရောအောင် JSONBin Master Key လေးထည့်ပြီး 'Auto-Create Couple Cloud Room' နှိပ်လိုက်ရုံပါပဲ။ ပြီးရင် 'Link for Her' ကိုနှိပ်ပြီး သူ့ဆီ Link ပို့ပေးလိုက်တာနဲ့ နှစ်ယောက်စလုံး တိုက်ရိုက်မြင်ရပါပြီ။",
+                profileTitle: "နှစ်ယောက်သား အချက်အလက်များ",
+                annivLbl: "တွဲစမှတ် နေ့စွဲ (Anniversary Date)",
+                saveProfileBtn: "Save Dates & Names",
+                pinCardTitle: "လျှို့ဝှက် PIN Lock",
+                navHome: "Home",
+                navNotes: "Notes",
+                navPlay: "Play",
+                navGoals: "Goals",
+                navSync: "Sync"
+            },
+            en: {
+                headerSub: "PRIVATE SPACE",
+                togetherFor: "TOGETHER FOR",
+                hrsLbl: "Hours",
+                minsLbl: "Mins",
+                secsLbl: "Secs",
+                liveMoodTitle: "Live Mood Status",
+                customMoodPh: "Type a custom mood status...",
+                leaveNoteTitle: "Leave a Sweet Love Note",
+                notePh: "Write a sweet note for them to see...",
+                postNoteBtn: "Send Love Note",
+                notesWallTitle: "Our Love Notes Wall",
+                wheelTitle: "What Should We Do? (Spin Wheel)",
+                spinBtn: "Spin the Wheel!",
+                cardsTitle: "Couple Question & Truth/Dare Deck",
+                jarTitle: "Our Shared Savings Jar",
+                jarAmtPh: "Amount to add (Ks)",
+                bucketTitle: "Our Couple Bucket List",
+                bucketPh: "e.g. Take cute photos together...",
+                syncSetupTitle: "Two-Way Live Phone Sync",
+                syncSetupDesc: "Paste your JSONBin Master Key and tap 'Auto-Create Couple Cloud Room' so it stays separate from your shop POS. Then tap 'Link for Her' and send her the link!",
+                profileTitle: "Our Profile & Important Dates",
+                annivLbl: "Anniversary Start Date",
+                saveProfileBtn: "Save Dates & Names",
+                pinCardTitle: "Secret Couple PIN Lock",
+                navHome: "Home",
+                navNotes: "Notes",
+                navPlay: "Play",
+                navGoals: "Goals",
+                navSync: "Sync"
+            }
+        };
+
+        function applyLang() {
+            document.getElementById('langBtn').innerText = lang === 'mm' ? 'EN' : 'MM';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const k = el.getAttribute('data-i18n');
+                if (dict[lang][k]) el.innerText = dict[lang][k];
+            });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const k = el.getAttribute('data-i18n-ph');
+                if (dict[lang][k]) el.placeholder = dict[lang][k];
+            });
+            renderAll();
+        }
+
+        function toggleLang() {
+            lang = lang === 'mm' ? 'en' : 'mm';
+            localStorage.setItem('cpl_lang', lang);
+            applyLang();
+        }
+
+        // --- ROLE SWITCHER ---
+        function switchRole() {
+            activeRole = activeRole === 'him' ? 'her' : 'him';
+            localStorage.setItem('cpl_role', activeRole);
+            renderAll();
+        }
+
+        // --- PIN LOCK ---
+        let enteredPin = '';
+        function lockAppNow() {
+            enteredPin = '';
+            updatePinDots();
+            document.getElementById('pinNamesTitle').innerText = `${profile.hisName} & ${profile.herName}`;
+            document.getElementById('pinHint').innerText = 'Enter Our 4-Digit Secret PIN';
+            document.getElementById('pinScreen').classList.add('show');
+        }
+
+        function pressPin(k) {
+            if (k === 'C') enteredPin = '';
+            else if (k === 'DEL') enteredPin = enteredPin.slice(0, -1);
+            else if (enteredPin.length < 4) enteredPin += k;
+            updatePinDots();
+
+            if (enteredPin.length === 4) {
+                if (enteredPin === profile.pin) {
+                    document.getElementById('pinScreen').classList.remove('show');
+                    enteredPin = '';
+                } else {
+                    document.getElementById('pinHint').innerText = 'Wrong PIN! Try again';
+                    setTimeout(() => { enteredPin = ''; updatePinDots(); }, 300);
+                }
+            }
+        }
+
+        function updatePinDots() {
+            for (let i = 0; i < 4; i++) {
+                document.getElementById('pdot' + i).classList.toggle('filled', i < enteredPin.length);
+            }
+        }
+
+        function togglePinLock() {
+            profile.pinEnabled = !profile.pinEnabled;
+            setStore('cpl_profile', profile);
+            renderSettingsUI();
+        }
+
+        function changeCouplePin() {
+            const p = prompt("Enter new 4-digit Secret PIN:");
+            if (p && /^\d{4}$/.test(p)) {
+                profile.pin = p;
+                setStore('cpl_profile', profile);
+                renderSettingsUI();
+                alert("PIN updated to " + p);
+            }
+        }
+
+        // --- NAVIGATION ---
+        function switchTab(id, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-' + id).classList.add('active');
+            btn.classList.add('active');
+            if (id === 'play') drawWheel();
+        }
+
+        // --- LIVE LOVE COUNTER & COUNTDOWNS ---
+        function updateLoveClock() {
+            const start = new Date(profile.anniv + 'T00:00:00');
+            const now = new Date();
+            const diff = Math.max(0, now - start);
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hrs = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((diff / (1000 * 60)) % 60);
+            const secs = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('loveDaysText').innerText = `${days.toLocaleString()} Days`;
+            document.getElementById('annivDateBadge').innerText = `Since ${profile.anniv}`;
+            document.getElementById('cntHours').innerText = String(hrs).padStart(2, '0');
+            document.getElementById('cntMins').innerText = String(mins).padStart(2, '0');
+            document.getElementById('cntSecs').innerText = String(secs).padStart(2, '0');
+        }
+        setInterval(updateLoveClock, 1000);
+
+        function daysUntilNextBirthday(bdayStr) {
+            if (!bdayStr) return '--';
+            const parts = bdayStr.split('-');
+            if (parts.length < 3) return '--';
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let next = new Date(now.getFullYear(), Number(parts[1]) - 1, Number(parts[2]));
+            if (next < today) next.setFullYear(now.getFullYear() + 1);
+            const diffDays = Math.round((next - today) / (1000 * 60 * 60 * 24));
+            return diffDays === 0 ? 'Today! 🎉' : `${diffDays} days`;
+        }
+
+        // --- MOOD & HEART PING ---
+        function setMyMood(emoji, text, e) {
+            spawnHearts(e);
+            playSoftChime();
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (activeRole === 'him') {
+                coupleData.hisMood = { emoji, text, time: timeStr };
+            } else {
+                coupleData.herMood = { emoji, text, time: timeStr };
+            }
+            saveAndSync();
+            renderAll();
+        }
+
+        function setCustomMood(e) {
+            const val = document.getElementById('customMoodInput').value.trim();
+            if (!val) return;
+            document.getElementById('customMoodInput').value = '';
+            setMyMood('✨', val, e);
+        }
+
+        function sendHeartPing(e) {
+            spawnHearts(e);
+            playSoftChime();
+            const sender = activeRole === 'him' ? profile.hisName : profile.herName;
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            coupleData.heartCount = (Number(coupleData.heartCount) || 0) + 1;
+            coupleData.heartPing = `💖 ${sender} sent a heart at ${timeStr}! (Total: ${coupleData.heartCount})`;
+            saveAndSync();
+            renderAll();
+        }
+
+        // --- LOVE NOTES ---
+        function addLoveNote(e) {
+            const txt = document.getElementById('noteInput').value.trim();
+            if (!txt) return;
+            spawnHearts(e);
+            playSoftChime();
+            const timeStr = new Date().toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
+            coupleData.notes.unshift({
+                id: Date.now(),
+                from: activeRole,
+                text: txt,
+                time: timeStr,
+                liked: false
+            });
+            document.getElementById('noteInput').value = '';
+            saveAndSync();
+            renderNotes();
+        }
+
+        function toggleLikeNote(id, e) {
+            const n = coupleData.notes.find(x => x.id === id);
+            if (!n) return;
+            n.liked = !n.liked;
+            if (n.liked) { spawnHearts(e); playSoftChime(); }
+            saveAndSync();
+            renderNotes();
+        }
+
+        function deleteNote(id) {
+            coupleData.notes = coupleData.notes.filter(x => x.id !== id);
+            saveAndSync();
+            renderNotes();
+        }
+
+        function renderNotes() {
+            document.getElementById('notesCount').innerText = coupleData.notes.length;
+            const box = document.getElementById('notesList');
+            if (coupleData.notes.length === 0) {
+                box.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 14px;">No notes yet 💌</div>`;
+                return;
+            }
+            box.innerHTML = coupleData.notes.map(n => {
+                const isHer = n.from === 'her';
+                const senderName = isHer ? `👧 ${profile.herName}` : `👦 ${profile.hisName}`;
+                return `
+                    <div class="note-item ${isHer ? 'her-note' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 11px; font-weight: 800; color: ${isHer ? '#d8b4fe' : 'var(--accent-light)'};">${esc(senderName)}</span>
+                            <span style="font-size: 10px; color: var(--text-muted);">${esc(n.time)}</span>
+                        </div>
+                        <div style="font-size: 13px; line-height: 1.5; white-space: pre-wrap;">${esc(n.text)}</div>
+                        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                            <button class="pill-btn" onclick="toggleLikeNote(${n.id}, event)">${n.liked ? '❤️ Loved' : '🤍 Love'}</button>
+                            <button class="icon-btn" style="height: 26px; min-width: 26px;" onclick="deleteNote(${n.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- SPIN WHEEL & COUPLE CARDS ---
+        let wheelAngle = 0;
+        let spinning = false;
+
+        function drawWheel() {
+            const canvas = document.getElementById('wheelCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const items = coupleData.wheelItems.length ? coupleData.wheelItems : ['Love You'];
+            const arc = (2 * Math.PI) / items.length;
+            const colors = ['#ff4d8d', '#7e22ce', '#db2777', '#6d28d9', '#e11d48', '#9333ea'];
+
+            ctx.clearRect(0, 0, 250, 250);
+            ctx.save();
+            ctx.translate(125, 125);
+            ctx.rotate(wheelAngle);
+
+            items.forEach((label, i) => {
+                const start = i * arc;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, 118, start, start + arc);
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#0d0a14';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(start + arc / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 11px sans-serif';
+                const shortTxt = label.length > 15 ? label.slice(0, 14) + '…' : label;
+                ctx.fillText(shortTxt, 105, 4);
+                ctx.restore();
+            });
+
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, 2 * Math.PI);
+            ctx.fillStyle = '#0d0a14';
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function spinWheel() {
+            if (spinning) return;
+            spinning = true;
+            document.getElementById('wheelResult').innerText = 'Spinning... ✨';
+            const extraSpins = (5 + Math.random() * 5) * 2 * Math.PI;
+            const target = wheelAngle + extraSpins;
+            const duration = 2500;
+            const startAngle = wheelAngle;
+            const startTime = performance.now();
+
+            function anim(now) {
+                const t = Math.min(1, (now - startTime) / duration);
+                const ease = 1 - Math.pow(1 - t, 3);
+                wheelAngle = startAngle + (target - startAngle) * ease;
+                drawWheel();
+                if (t < 1) {
+                    requestAnimationFrame(anim);
+                } else {
+                    spinning = false;
+                    const items = coupleData.wheelItems;
+                    const arc = (2 * Math.PI) / items.length;
+                    const normalized = (1.5 * Math.PI - (wheelAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+                    const idx = Math.floor(normalized / arc) % items.length;
+                    document.getElementById('wheelResult').innerText = `🎉 ${items[idx]}`;
+                    spawnHearts();
+                    playSoftChime();
+                }
+            }
+            requestAnimationFrame(anim);
+        }
+
+        function editWheelItems() {
+            const cur = coupleData.wheelItems.join(', ');
+            const updated = prompt("Enter choices separated by comma (,):", cur);
+            if (updated !== null) {
+                const arr = updated.split(',').map(s => s.trim()).filter(Boolean);
+                if (arr.length >= 2) {
+                    coupleData.wheelItems = arr;
+                    saveAndSync();
+                    drawWheel();
+                }
+            }
+        }
+
+        const loveQuestions = [
+            "ကိုယ့်ရဲ့ ဘယ်အချက်လေးကို အကြိုက်ဆုံးလဲ? 💖",
+            "နှစ်ယောက်အတူ ဘယ်နေရာကို အသွားချင်ဆုံးလဲ? ✨",
+            "စတွေ့စတုန်းက ကိုယ့်အပေါ် ပထမဆုံး ဘယ်လိုမြင်ခဲ့လဲ? 😊",
+            "ကိုယ်တို့နှစ်ယောက်ရဲ့ အမှတ်တရအဖြစ်ဆုံး အချိန်က ဘယ်အချိန်လဲ?",
+            "ကိုယ်စိတ်ဆိုးနေရင် ဘယ်လိုချော့ရင် အမြန်ဆုံး ပြေလဲ? 🥺",
+            "နောင်တစ်ချိန်ကျရင် အတူတူ ဘာတွေလုပ်ချင်လဲ?"
+        ];
+
+        const dareCards = [
+            "DARE: အခုချက်ချင်း ချစ်စရာ Selfie တစ်ပုံ ပို့ပေးပါ 📸",
+            "TRUTH: ဖုန်းထဲမှာ ကိုယ့်နာမည်ကို ဘယ်လို Nickname နဲ့ မှတ်ထားလဲ? 🤭",
+            "DARE: အသံဖိုင် (Voice Note) နဲ့ 'အရမ်းချစ်တယ်' လို့ ပို့ပေးပါ 🎙️",
+            "TRUTH: ကိုယ့်ကို လွမ်းနေပေမဲ့ မပြောဘဲ နေခဲ့ဖူးတဲ့ အချိန်ရှိလား?",
+            "DARE: ဒီနေ့ ဂိမ်းဆော့ရင် ကိုယ့်ကို ၁ ပွဲ အနိုင်ပေးရမယ် 🎮",
+            "TRUTH: ကိုယ်ဝတ်ထားတဲ့ ပုံစံတွေထဲမှာ ဘယ်တစ်ခု အကြိုက်ဆုံးလဲ?"
+        ];
+
+        function drawCoupleCard(type) {
+            const pool = type === 'love' ? loveQuestions : dareCards;
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            document.getElementById('cardTypeBadge').innerText = type === 'love' ? '💕 LOVE QUESTION' : '🎲 TRUTH OR DARE';
+            document.getElementById('cardQuestionText').innerText = pick;
+            playSoftChime();
+        }
+
+        // --- COUPLE SAVINGS JAR & BUCKET LIST ---
+        function addToCoupleJar(e) {
+            const amt = Number(document.getElementById('jarAddInput').value) || 0;
+            if (amt <= 0) return;
+            if (!coupleData.jar) coupleData.jar = { goalName: 'Date Jar', target: 50000, hisSaved: 0, herSaved: 0 };
+            if (activeRole === 'him') coupleData.jar.hisSaved = (Number(coupleData.jar.hisSaved) || 0) + amt;
+            else coupleData.jar.herSaved = (Number(coupleData.jar.herSaved) || 0) + amt;
+            document.getElementById('jarAddInput').value = '';
+            spawnHearts(e);
+            playSoftChime();
+            saveAndSync();
+            renderJar();
+        }
+
+        function editJarGoal() {
+            const jar = coupleData.jar || { goalName: 'Date Jar', target: 50000, hisSaved: 0, herSaved: 0 };
+            const name = prompt("Goal Name:", jar.goalName);
+            if (name === null) return;
+            const target = Number(prompt("Target Amount (Ks):", jar.target)) || jar.target;
+            jar.goalName = name.trim() || jar.goalName;
+            jar.target = Math.max(1000, target);
+            coupleData.jar = jar;
+            saveAndSync();
+            renderJar();
+        }
+
+        function renderJar() {
+            const jar = coupleData.jar || { goalName: 'Date Jar', target: 50000, hisSaved: 0, herSaved: 0 };
+            const his = Number(jar.hisSaved) || 0;
+            const her = Number(jar.herSaved) || 0;
+            const total = his + her;
+            const target = Math.max(1, Number(jar.target) || 50000);
+            const pct = Math.min(100, Math.round((total / target) * 100));
+
+            document.getElementById('jarGoalName').innerText = jar.goalName;
+            document.getElementById('jarSavedText').innerText = `${total.toLocaleString()} Ks (${pct}%)`;
+            document.getElementById('jarTargetText').innerText = `/ ${target.toLocaleString()} Ks`;
+            document.getElementById('jarProgBar').style.width = pct + '%';
+            document.getElementById('hisJarStat').innerText = `👦 ${profile.hisName}: ${his.toLocaleString()} Ks`;
+            document.getElementById('herJarStat').innerText = `👧 ${profile.herName}: ${her.toLocaleString()} Ks`;
+        }
+
+        function addBucketItem() {
+            const val = document.getElementById('bucketInput').value.trim();
+            if (!val) return;
+            coupleData.bucket.unshift({ id: Date.now(), text: val, done: false });
+            document.getElementById('bucketInput').value = '';
+            saveAndSync();
+            renderBucket();
+        }
+
+        function toggleBucket(id, e) {
+            const b = coupleData.bucket.find(x => x.id === id);
+            if (!b) return;
+            b.done = !b.done;
+            if (b.done) { spawnHearts(e); playSoftChime(); }
+            saveAndSync();
+            renderBucket();
+        }
+
+        function deleteBucket(id) {
+            coupleData.bucket = coupleData.bucket.filter(x => x.id !== id);
+            saveAndSync();
+            renderBucket();
+        }
+
+        function renderBucket() {
+            const box = document.getElementById('bucketList');
+            box.innerHTML = coupleData.bucket.map(b => `
+                <div class="bucket-row ${b.done ? 'done' : ''}">
+                    <div style="display: flex; align-items: center; gap: 9px; cursor: pointer; flex: 1;" onclick="toggleBucket(${b.id}, event)">
+                        <span style="font-size: 16px;">${b.done ? '✅' : '⬜'}</span>
+                        <span style="font-size: 13px; font-weight: 700;">${esc(b.text)}</span>
+                    </div>
+                    <button class="icon-btn" style="height: 26px; min-width: 26px;" onclick="deleteBucket(${b.id})">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        // --- CLOUD SYNC, AUTO-CREATE BIN & MAGIC INVITE LINK ---
+        let isSyncBusy = false;
+
+        function saveAndSync() {
+            setStore('cpl_data', coupleData);
+            if (binId && apiKey) uploadToCloud();
+        }
+
+        async function autoCreateCoupleBin() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) {
+                alert(lang === 'mm' ? "အရင်ဆုံး JSONBin Master Key ထည့်ပေးပါ။" : "Please enter your JSONBin Master Key first.");
+                return;
+            }
+            document.getElementById('syncStatusLabel').innerText = '☁️ Creating Room...';
+            const stamp = new Date().toISOString();
+            try {
+                const res = await fetch('https://api.jsonbin.io/v3/b', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': key,
+                        'X-Bin-Name': 'BEE_Mesu_Private_Space'
+                    },
+                    body: JSON.stringify({ coupleData, profile, updatedAt: stamp })
+                });
+                const json = await res.json();
+                if (!res.ok || !json.metadata || !json.metadata.id) throw new Error();
+                binId = json.metadata.id;
+                apiKey = key;
+                localStorage.setItem('cpl_binId', binId);
+                localStorage.setItem('cpl_apiKey', apiKey);
+                localStorage.setItem('cpl_lastStamp', stamp);
+                renderSettingsUI();
+                alert(lang === 'mm'
+                    ? "✅ နှစ်ယောက်သီးသန့် Cloud Room အသစ် ဆောက်ပြီးပါပြီ! အခု 'Link for Her' ခလုတ်ကိုနှိပ်ပြီး သူ့ဆီ Link ပို့ပေးလိုက်ပါ။"
+                    : "✅ Couple Cloud Room created! Now tap 'Link for Her' to send her the invite link.");
+            } catch (e) {
+                renderSettingsUI();
+                alert(lang === 'mm' ? "Room ဆောက်မရပါ။ Master Key ပြန်စစ်ပေးပါ။" : "Could not create room. Please check your Master Key.");
+            }
+        }
+
+        function saveCloudConfig() {
+            binId = document.getElementById('binIdInput').value.trim();
+            apiKey = document.getElementById('apiKeyInput').value.trim();
+            localStorage.setItem('cpl_binId', binId);
+            localStorage.setItem('cpl_apiKey', apiKey);
+            renderSettingsUI();
+            if (binId && apiKey) {
+                uploadToCloud();
+                alert("✅ Cloud Sync Connected! Now tap 'Link for Her' to share with her.");
+            }
+        }
+
+        function copyMagicInviteLink() {
+            if (!binId || !apiKey) {
+                alert("Please connect Cloud Sync first!");
+                return;
+            }
+            const payload = { binId, apiKey, profile };
+            const bytes = new TextEncoder().encode(JSON.stringify(payload));
+            let binStr = '';
+            bytes.forEach(b => binStr += String.fromCharCode(b));
+            const encoded = btoa(binStr);
+            const baseUrl = window.location.href.split('#')[0];
+            const magicUrl = `${baseUrl}#invite=${encoded}`;
+            navigator.clipboard?.writeText(magicUrl);
+            alert(lang === 'mm'
+                ? "💖 Magic Link Copy ကူးပြီးပါပြီ! Telegram / Messenger ကနေ သူ့ဆီ ပို့ပေးလိုက်ပါ — သူဖွင့်လိုက်တာနဲ့ နှစ်ယောက်စလုံး ချိတ်သွားပါမယ်။"
+                : "💖 Magic Invite Link copied! Send it to her — once she opens it, both phones will sync live!");
+        }
+
+        async function uploadToCloud() {
+            if (!binId || !apiKey || isSyncBusy) return;
+            isSyncBusy = true;
+            const stamp = new Date().toISOString();
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': apiKey },
+                    body: JSON.stringify({ coupleData, profile, updatedAt: stamp })
+                });
+                lastRemoteStamp = stamp;
+                localStorage.setItem('cpl_lastStamp', stamp);
+                document.getElementById('syncStatusLabel').innerText = '☁️ Live Synced';
+            } catch (e) {} finally {
+                isSyncBusy = false;
+            }
+        }
+
+        async function syncFromCloud(silent = false) {
+            if (!binId || !apiKey || isSyncBusy) return;
+            isSyncBusy = true;
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+                    headers: { 'X-Master-Key': apiKey }
+                });
+                const json = await res.json();
+                if (json.record) {
+                    const remoteStamp = json.record.updatedAt || '';
+                    if (silent && remoteStamp && remoteStamp === lastRemoteStamp) {
+                        isSyncBusy = false;
+                        return;
+                    }
+                    if (json.record.coupleData) {
+                        const prevHearts = Number(coupleData.heartCount) || 0;
+                        coupleData = { ...coupleData, ...json.record.coupleData };
+                        setStore('cpl_data', coupleData);
+                        if (silent && (Number(coupleData.heartCount) || 0) > prevHearts) {
+                            spawnHearts();
+                            playSoftChime();
+                        }
+                    }
+                    if (json.record.profile) {
+                        profile = { ...profile, ...json.record.profile };
+                        setStore('cpl_profile', profile);
+                    }
+                    if (remoteStamp) {
+                        lastRemoteStamp = remoteStamp;
+                        localStorage.setItem('cpl_lastStamp', remoteStamp);
+                    }
+                    renderAll();
+                    if (!silent) alert("💖 Updated from Cloud!");
+                }
+            } catch (e) {} finally {
+                isSyncBusy = false;
+            }
+        }
+
+        // Fast 6-second live background sync so both sides see updates immediately
+        setInterval(() => {
+            if (binId && apiKey && document.visibilityState === 'visible') {
+                syncFromCloud(true);
+            }
+        }, 6000);
+
+        // --- PROFILE & RENDER ---
+        function saveProfileDates() {
+            profile.hisName = document.getElementById('hisNameInput').value.trim() || 'BEE';
+            profile.herName = document.getElementById('herNameInput').value.trim() || 'Mesu';
+            profile.anniv = document.getElementById('annivInput').value || '2025-01-01';
+            profile.hisBday = document.getElementById('hisBdayInput').value || '2010-04-08';
+            profile.herBday = document.getElementById('herBdayInput').value || '2013-07-09';
+            setStore('cpl_profile', profile);
+            if (binId && apiKey) uploadToCloud();
+            renderAll();
+            alert("✨ Saved!");
+        }
+
+        function renderSettingsUI() {
+            document.getElementById('binIdInput').value = binId;
+            document.getElementById('apiKeyInput').value = apiKey;
+            document.getElementById('hisNameInput').value = profile.hisName;
+            document.getElementById('herNameInput').value = profile.herName;
+            document.getElementById('annivInput').value = profile.anniv;
+            document.getElementById('hisBdayInput').value = profile.hisBday;
+            document.getElementById('herBdayInput').value = profile.herBday;
+            document.getElementById('curPinDisplay').innerText = profile.pin;
+            document.getElementById('pinStateBtn').innerText = `PIN Lock: ${profile.pinEnabled ? 'ON' : 'OFF'}`;
+            document.getElementById('syncStatusLabel').innerText = (binId && apiKey) ? '☁️ Live Connected (6s)' : '☁️ Local Mode';
+        }
+
+        function renderAll() {
+            document.getElementById('headerNames').innerText = `${profile.hisName} & ${profile.herName}`;
+            document.getElementById('roleToggleBtn').innerText = activeRole === 'him' ? `👦 ${profile.hisName}` : `👧 ${profile.herName}`;
+            document.getElementById('heartCounterBadge').innerText = `❤️ ${Number(coupleData.heartCount) || 0}`;
+
+            document.getElementById('hisMoodName').innerText = `👦 ${profile.hisName}`;
+            document.getElementById('hisMoodEmoji').innerText = coupleData.hisMood.emoji;
+            document.getElementById('hisMoodText').innerText = coupleData.hisMood.text;
+            document.getElementById('hisMoodTime').innerText = coupleData.hisMood.time;
+
+            document.getElementById('herMoodName').innerText = `👧 ${profile.herName}`;
+            document.getElementById('herMoodEmoji').innerText = coupleData.herMood.emoji;
+            document.getElementById('herMoodText').innerText = coupleData.herMood.text;
+            document.getElementById('herMoodTime').innerText = coupleData.herMood.time;
+
+            document.getElementById('hisMoodCard').classList.toggle('me-highlight', activeRole === 'him');
+            document.getElementById('herMoodCard').classList.toggle('me-highlight', activeRole === 'her');
+
+            const curActor = activeRole === 'him' ? profile.hisName : profile.herName;
+            document.getElementById('updateMoodPrompt').innerText = lang === 'mm'
+                ? `${curActor} ရဲ့ လက်ရှိ Mood ပြောင်းရန် နှိပ်ပါ:`
+                : `Update ${curActor}'s current mood:`;
+
+            const pingBanner = document.getElementById('heartPingBanner');
+            if (coupleData.heartPing) {
+                pingBanner.style.display = 'block';
+                pingBanner.innerText = coupleData.heartPing;
+            }
+
+            document.getElementById('herBdayLabel').innerText = `🎂 ${profile.herName}'s Birthday`;
+            document.getElementById('hisBdayLabel').innerText = `🎂 ${profile.hisName}'s Birthday`;
+            document.getElementById('herBdayCountdown').innerText = daysUntilNextBirthday(profile.herBday);
+            document.getElementById('hisBdayCountdown').innerText = daysUntilNextBirthday(profile.hisBday);
+
+            updateLoveClock();
+            renderNotes();
+            renderJar();
+            renderBucket();
+            renderSettingsUI();
+            drawWheel();
+        }
+
+        // --- INIT ---
+        applyLang();
+        if (binId && apiKey) syncFromCloud(true);
+    </script>
+</body>
+</html>
